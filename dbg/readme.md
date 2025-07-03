@@ -12,10 +12,10 @@
 
 ## Installation
 
-1. Copy the `lib` folder into your mod's folder.
+1. [Download the libraries](https://github.com/djoslin0/coop-lua-libraries/archive/refs/heads/main.zip)
+2. Copy the `lib` folder from `dbg/lib` into your mod's folder.
 e.g. `your_mod_folder/lib`
-
-2. Require or import the module at the top of your script:
+3. Require or import the module at the top of your script:
 
 ```lua
 local Dbg = require("dbg")
