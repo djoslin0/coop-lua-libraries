@@ -6,6 +6,8 @@
 
 **Requires <ins>sm64coopdx v1.4</ins> or above**
 
+<br />
+
 ---
 
 <br />
