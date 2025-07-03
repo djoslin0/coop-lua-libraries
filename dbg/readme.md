@@ -22,8 +22,6 @@ local Dbg = require("dbg")
 
 ## Functions
 
-<br />
-
 #### `Dbg.point(pos, color, size)`
 
 Draws a single 3D point at `pos`.
