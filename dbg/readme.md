@@ -17,9 +17,9 @@ e.g. `your_mod_folder/lib`
 local Dbg = require("dbg")
 ```
 
-## Common Functions
+## Functions
 
-### `Dbg.point(pos, color, size)`
+#### `Dbg.point(pos, color, size)`
 
 Draws a single 3D point at `pos`.
 
@@ -32,7 +32,9 @@ Draws a single 3D point at `pos`.
 Dbg.point({0, 0, 0}, {255, 0, 0, 255}, 5)
 ```
 
-### `Dbg.line(a, b, color, thickness)`
+---
+
+#### `Dbg.line(a, b, color, thickness)`
 
 Draws a 3D line between points `a` and `b`.
 
@@ -45,7 +47,9 @@ Draws a 3D line between points `a` and `b`.
 Dbg.line({0, 0, 0}, {1000, 0, 0}, {0, 255, 0, 255}, 2)
 ```
 
-### `Dbg.text(str, pos, color, scale)`
+---
+
+#### `Dbg.text(str, pos, color, scale)`
 
 Renders world‑space text at `pos`.
 
@@ -62,4 +66,4 @@ Dbg.text("Hello", {1, 2, 3}, {255, 255, 255, 200}, 1.5)
 
 ## Example Mod
 
-And example mod is located at [example-mod], if you wish to see it running.
+And example mod is located [here](example-mod), if you wish to see it running.
