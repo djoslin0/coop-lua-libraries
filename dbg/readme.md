@@ -32,7 +32,7 @@ Draws a single 3D point at `pos`.
 Dbg.point({0, 0, 0}, {255, 0, 0, 255}, 5)
 ```
 
----
+<br />
 
 #### `Dbg.line(a, b, color, thickness)`
 
@@ -47,7 +47,7 @@ Draws a 3D line between points `a` and `b`.
 Dbg.line({0, 0, 0}, {1000, 0, 0}, {0, 255, 0, 255}, 2)
 ```
 
----
+<br />
 
 #### `Dbg.text(str, pos, color, scale)`
 
