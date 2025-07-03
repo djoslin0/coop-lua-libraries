@@ -2,6 +2,10 @@
 
 **BmFont** is a lightweight bitmap font rendering library for coop. It supports loading BMFont (`.fnt`) files or simple sprite sheets, kerning, alignment options, and per‑glyph animations.
 
+![](image.png?raw=true)
+
+**Requires <ins>sm64coopdx v1.4</ins> or above**
+
 ---
 
 <br />
