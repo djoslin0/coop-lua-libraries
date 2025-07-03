@@ -22,6 +22,7 @@ local BmFont = require("bmfont")
 4. Load your custom font
 ```lua
 local FONT_TT_MASTERS  = BmFont.load_fnt('bmfont-tt-masters')
+-- ... or ...
 local FONT_ZD          = BmFont.load_sheet('bmfont-zd', 8, 8)
 ```
 
@@ -40,7 +41,31 @@ hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 
 ## Adding New Fonts
 
-TODO
+1. Goto [snowb.org](https://snowb.org/), it's a tool to convert fonts to BmFonts
+2. Add your font file using the `ADD FONT FILE` button
+3. Copy and paste all of the characters from [djui-chars.txt](djui-chars.txt) into the glyphs section of the website.
+4. Uncheck `Auto Pack` and check `Fixed Size`
+5. Set `Width` to `1024` and `Height` to `512` (you can use other powers of 2 if you wish)
+6. Decrease `Font Size` until all of the glyphs pack into the image
+7. Click `Export` at the top, export as a `.txt (BMFont TEXT)`
+8. Copy the `png` file from the exported zip to `textures/bmfont-YOURFONTNAME.png`
+9. Open the `txt` file from the exported zip and copy everything inside of it
+10. Create a new file at `your_mod_folder/fonts/bmfont-YOURFONTNAME.lua` that contains the following:
+```lua
+return [[
+-- PASTE THE CONTENTS OF THE TXT FILE HERE, BETWEEN THE DOUBLE BRACKETS
+]]
+```
+
+Now you should be able to load your font in your script
+```lua
+local FONT_YOURFONTNAME = BmFont.load_fnt('bmfont-YOURFONTNAME')
+```
+
+**Note** - the name of your texture and the name of the lua file **must match**.
+So if you use the font name `comic-sans`:
+* you should have a lua file at `your_mod_folder/fonts/bmfont-comic-sans.lua`
+* you should have a png file at `your_mod_folder/textures/bmfont-comic-sans.png`
 
 ---
 
@@ -56,13 +81,6 @@ Loads a BMFont `.fnt` definition (converted to a Lua file returning the raw text
 -- Returns a CustomFont object
 local font = BmFont.load_fnt('bmfont-tt-masters')
 ```
-
-| Field              | Description                                                     |
-| ------------------ | --------------------------------------------------------------- |
-| `font.chars`       | Mapping `charID -> {x,y,width,height,xoffset,yoffset,xadvance}` |
-| `font.kerningMap`  | Kerning adjustments: `kerningMap[first][second] = amount`       |
-| `font.common.base` | Line height / base offset                                       |
-| `font.texture`     | TextureInfo object for rendering                                |
 
 <br />
 
@@ -123,11 +141,11 @@ local o = {
 Example: a simple wave effect:
 
 ```lua
-local function wave_anim(i, len, o)
-  local t = i + get_global_timer() * 4
-  o.offset.y = math.sin(t) * 5
+local function wave_anim(index, length, output)
+  local t = index + get_global_timer() * 4
+  output.offset.y = math.sin(t) * 5
 end
-BmFont.print_center_aligned(FONT_ZD, "WAVE", w * 0.5, 200, 2, wave_anim)
+BmFont.print_center_aligned(FONT_ZD, "WAVE", 200, 200, 2, wave_anim)
 ```
 
 ---
@@ -137,6 +155,7 @@ BmFont.print_center_aligned(FONT_ZD, "WAVE", w * 0.5, 200, 2, wave_anim)
 ### BmFont is a Drop-in Replacement
 
 You can use all of the previous text rendering functions in the same way as before, but using the fonts loaded using `BmFont`.
+
 The following functions get overridden allowing you to use custom fonts, or the built in ones.
 
 ```lua
