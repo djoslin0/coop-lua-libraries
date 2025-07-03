@@ -6,8 +6,8 @@
 
 **Requires <ins>sm64coopdx v1.4</ins> or above**
 
+<br />
 ---
-
 <br />
 
 ## Installation
@@ -39,15 +39,15 @@ end
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 ```
 
+<br />
 ---
-
 <br />
 
 ## Adding New Fonts
 
 1. Goto [snowb.org](https://snowb.org/), it's a tool to convert fonts to BmFonts
 2. Add your font file using the `ADD FONT FILE` button
-3. Copy and paste all of the characters from [djui-chars.txt](djui-chars.txt) into the glyphs section of the website.
+3. Copy and paste all of the characters from [djui-chars.txt](https://raw.githubusercontent.com/djoslin0/coop-lua-libraries/refs/heads/main/bmfont/djui-chars.txt) into the glyphs section of the website.
 4. Uncheck `Auto Pack` and check `Fixed Size`
 5. Set `Width` to `1024` and `Height` to `512` (you can use other powers of 2 if you wish)
 6. Decrease `Font Size` until all of the glyphs pack into the image
@@ -67,12 +67,13 @@ local FONT_YOURFONTNAME = BmFont.load_fnt('bmfont-YOURFONTNAME')
 ```
 
 **Note** - the name of your texture and the name of the lua file **must match**.
+
 So if you use the font name `comic-sans`:
 * you should have a lua file at `your_mod_folder/fonts/bmfont-comic-sans.lua`
 * you should have a png file at `your_mod_folder/textures/bmfont-comic-sans.png`
 
+<br />
 ---
-
 <br />
 
 ## Core Functions
@@ -124,8 +125,8 @@ BmFont.print(FONT_TT_MASTERS, "Hello World", 100, 50, 1)
 
 Each adjusts the `x` origin so text is aligned against `x` at left, right, or center.
 
+<br />
 ---
-
 <br />
 
 ### Text Animation
@@ -152,8 +153,8 @@ end
 BmFont.print_center_aligned(FONT_ZD, "WAVE", 200, 200, 2, wave_anim)
 ```
 
+<br />
 ---
-
 <br />
 
 ### BmFont is a Drop-in Replacement
@@ -169,8 +170,8 @@ djui_hud_print_text(text, x, y, scale)
 djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)
 ```
 
+<br />
 ---
-
 <br />
 
 ## Example Mod
