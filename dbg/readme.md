@@ -2,6 +2,8 @@
 
 **Dbg** is a tiny, immediate-mode debug-drawing library for Lua that lets you quickly visualize things in the game world.
 
+![](image.png?raw=true)
+
 ---
 
 ## Installation
