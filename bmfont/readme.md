@@ -7,7 +7,9 @@
 **Requires <ins>sm64coopdx v1.4</ins> or above**
 
 <br />
+
 ---
+
 <br />
 
 ## Installation
@@ -40,7 +42,9 @@ hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 ```
 
 <br />
+
 ---
+
 <br />
 
 ## Adding New Fonts
@@ -73,7 +77,9 @@ So if you use the font name `comic-sans`:
 * you should have a png file at `your_mod_folder/textures/bmfont-comic-sans.png`
 
 <br />
+
 ---
+
 <br />
 
 ## Core Functions
@@ -126,7 +132,9 @@ BmFont.print(FONT_TT_MASTERS, "Hello World", 100, 50, 1)
 Each adjusts the `x` origin so text is aligned against `x` at left, right, or center.
 
 <br />
+
 ---
+
 <br />
 
 ### Text Animation
@@ -154,7 +162,9 @@ BmFont.print_center_aligned(FONT_ZD, "WAVE", 200, 200, 2, wave_anim)
 ```
 
 <br />
+
 ---
+
 <br />
 
 ### BmFont is a Drop-in Replacement
@@ -171,7 +181,9 @@ djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)
 ```
 
 <br />
+
 ---
+
 <br />
 
 ## Example Mod
