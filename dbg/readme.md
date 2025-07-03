@@ -6,6 +6,8 @@
 
 ---
 
+<br />
+
 ## Installation
 
 1. Copy the `lib` folder into your mod's folder.
@@ -16,8 +18,11 @@ e.g. `your_mod_folder/lib`
 ```lua
 local Dbg = require("dbg")
 ```
+<br />
 
 ## Functions
+
+<br />
 
 #### `Dbg.point(pos, color, size)`
 
@@ -62,7 +67,11 @@ Renders world‑space text at `pos`.
 Dbg.text("Hello", {1, 2, 3}, {255, 255, 255, 200}, 1.5)
 ```
 
+<br />
+
 ---
+
+<br />
 
 ## Example Mod
 
