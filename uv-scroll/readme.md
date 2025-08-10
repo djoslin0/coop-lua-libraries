@@ -40,7 +40,7 @@ Hooks a scrolling function to manipulate UV coordinates for a specific display l
 
 ```lua
 -- Example: Continuous horizontal scroll
-UvScroll.hook_scrolling_function("alley_dl_example_mesh_layer_1_tri_0", function(vtx, original, current)
+UvScroll.hook_scrolling_function("alley_dl_example_mesh_layer_1_tri_0", function(input_vtx, original_uv, current_uv)
     -- adjustable constants
     local speed = 100
 
