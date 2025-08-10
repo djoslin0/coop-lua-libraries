@@ -3,6 +3,8 @@
 **UV Scroll** is a utility library for creating dynamic texture scrolling effects by manipulating UV coordinates in display lists.
 
 Click on the picture below to see an example video.
+
+
 [![UV Scroll Video](https://img.youtube.com/vi/p5wmDVBMvXg/0.jpg)](https://www.youtube.com/watch?v=p5wmDVBMvXg)
 
 **Requires <ins>sm64coopdx v1.4</ins> or above**
