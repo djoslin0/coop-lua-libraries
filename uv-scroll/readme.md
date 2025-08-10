@@ -40,9 +40,12 @@ Hooks a scrolling function to manipulate UV coordinates for a specific display l
 
 ```lua
 -- Example: Continuous horizontal scroll
-UvScroll.hook_scrolling_function("example_dl", function(vtx, original, current)
-    current[1] = original[1] + (gGlobalSyncTable.frameCount % 100) * 50
-    current[2] = original[2]
+UvScroll.hook_scrolling_function("alley_dl_example_mesh_layer_1_tri_0", function(vtx, original, current)
+    -- adjustable constants
+    local speed = 100
+
+    -- move the UVs to the right
+    current_uv[1] = current_uv[1] + speed
 end)
 ```
 
