@@ -65,7 +65,7 @@ The layer number could also change depending on the layer you set through Blende
 
 The only way to know for sure which graphics name to use is to open up the exported level's `model.inc.c` and search for it within that text file.
 
-The one I was looking for was this one:
+The one I was looking for in the example mod was this one:
 
 ```C
 Gfx alley_dl_alley_mesh_layer_1_tri_0[] = {
