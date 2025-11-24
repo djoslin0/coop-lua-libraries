@@ -20,7 +20,7 @@ e.g. `your_mod_folder/lib`
 3. Require or import the module at the top of your script:
 
 ```lua
-local Dbg = require("dbg")
+local Dbg = require("/lib/dbg")
 ```
 <br />
 

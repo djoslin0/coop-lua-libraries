@@ -1,5 +1,6 @@
 -----------------
 -- Dbg Library --
+-- v1.1        --
 -----------------
 
 ---------------------------------------------------------------------
@@ -405,7 +406,7 @@ function Dbg.text(string, pos, color, scale)
         return
     end
 
-    t.string = string
+    t.string = tostring(string)
     t.color[1], t.color[2], t.color[3], t.color[4] = color[1], color[2], color[3], color[4] or 1
     t.scale = scale
 end

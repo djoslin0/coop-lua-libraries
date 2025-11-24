@@ -2,7 +2,7 @@
 -- description: Displays every nearby object's behavior name
 
 -- include the Dbg library under the 'Dbg' local variable
-local Dbg = require('dbg')
+local Dbg = require('/lib/dbg')
 
 -----------------------------------------------------------
 -- draw a line between mario's origin and his direction, --
