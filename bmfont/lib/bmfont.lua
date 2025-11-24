@@ -1,5 +1,6 @@
 --------------------
 -- BmFont Library --
+-- v1.1           --
 --------------------
 
 ---------------------------------------------------------------------
@@ -180,11 +181,10 @@ function BmFont.load_sheet(font_filename, tile_width, tile_height)
         right_to_left = false,
     }
 
-    local fnt_string = require(font_filename)
+    local fnt_string = require('/fonts/' .. font_filename)
 
     local x, y = 0, 0
     for _, code in utf8.codes(fnt_string) do
-        ---char id=34 x=487 y=474 width=22 height=18 xoffset=11 yoffset=15 xadvance=20 page=0 chnl=15
         font.chars[code] = {
             x = x,
             y = y,
@@ -221,7 +221,7 @@ function BmFont.load_fnt(font_filename)
         right_to_left = false,
     }
 
-    local fnt_string = require(font_filename)
+    local fnt_string = require('/fonts/' .. font_filename)
 
     for line in fnt_string:gmatch("[^\n]+") do
         line = line:gsub("\r$", "")

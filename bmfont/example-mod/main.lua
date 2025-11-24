@@ -1,4 +1,7 @@
-local BmFont = require('bmfont')
+-- name: BmFont Library Example
+-- description:
+
+local BmFont = require('/lib/bmfont')
 
 -----------------------
 -- load custom fonts --

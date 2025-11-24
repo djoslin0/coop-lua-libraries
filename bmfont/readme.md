@@ -22,7 +22,7 @@ e.g. `your_mod_folder/lib`
 3. Require or import the module at the top of your script:
 
 ```lua
-local BmFont = require("bmfont")
+local BmFont = require("/lib/bmfont")
 ```
 
 4. Load your custom font
