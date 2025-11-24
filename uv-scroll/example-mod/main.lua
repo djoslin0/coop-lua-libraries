@@ -1,7 +1,7 @@
 -- name: UV Scroll Demo
 -- description: UV Scroll Demo
 
-local UvScroll = require('uv-scroll')
+local UvScroll = require('/lib/uv-scroll')
 
 local LEVEL_ALLEY = level_register("level_alley_entry", COURSE_BOB, "Alley", "alley", 28000, 0x28, 0x28, 0x28)
 
