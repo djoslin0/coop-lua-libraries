@@ -194,6 +194,4 @@ djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)
 
 ## Example Mod
 
-
 And example mod is located [here](example-mod), if you wish to see it running. It includes a few text animations and fonts.
-
