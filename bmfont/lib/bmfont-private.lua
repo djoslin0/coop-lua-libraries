@@ -106,7 +106,7 @@ function djui_hud_print_text(message, x, y, scale)
 
     if type(message) ~= "string" then return end
 
-    BmFontPrivate._process_text(message, scale,
+    BmFontPrivate._process_text(message, override_font.base_scale * scale,
         function(ch, ox, s, i, l)
             local ar = ch.height / ch.width
             djui_hud_render_texture_tile(
@@ -139,7 +139,7 @@ function djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y
 
     if type(message) ~= "string" then return end
 
-    BmFontPrivate._process_text(message, scale,
+    BmFontPrivate._process_text(message, override_font.base_scale * scale,
         function(ch, ox, s, i, l)
             local ar = ch.height / ch.width
             djui_hud_render_texture_tile_interpolated(
@@ -164,7 +164,7 @@ function djui_hud_measure_text(message)
     end
     if type(message) ~= "string" then return 0 end
 
-    return BmFontPrivate._process_text(message, 1, function() end)
+    return BmFontPrivate._process_text(message, override_font.base_scale, function() end)
 end
 
 -------------------------------------------------------------------
