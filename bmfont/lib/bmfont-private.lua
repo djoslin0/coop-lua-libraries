@@ -139,6 +139,8 @@ function djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y
 
     if type(message) ~= "string" then return end
 
+    prevScale = prevScale * override_font.base_scale
+
     BmFontPrivate._process_text(message, override_font.base_scale * scale,
         function(ch, ox, s, i, l)
             local ar = ch.height / ch.width
