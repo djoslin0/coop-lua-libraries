@@ -55,10 +55,11 @@ hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 4. Uncheck `Auto Pack` and check `Fixed Size`
 5. Set `Width` to `1024` and `Height` to `512` (you can use other powers of 2 if you wish)
 6. Decrease `Font Size` until all of the glyphs pack into the image
-7. Click `Export` at the top, export as a `.txt (BMFont TEXT)`
-8. Copy the `png` file from the exported zip to `textures/bmfont-YOURFONTNAME.png`
-9. Open the `txt` file from the exported zip and copy everything inside of it
-10. Create a new file at `your_mod_folder/fonts/bmfont-YOURFONTNAME.lua` that contains the following:
+7. Set the `Color` to `White`.
+8. Click `Export` at the top, export as a `.txt (BMFont TEXT)`
+9. Copy the `png` file from the exported zip to `textures/bmfont-YOURFONTNAME.png`
+10. Open the `txt` file from the exported zip and copy everything inside of it
+11. Create a new file at `your_mod_folder/fonts/bmfont-YOURFONTNAME.lua` that contains the following:
 ```lua
 return [[
 -- PASTE THE CONTENTS OF THE TXT FILE HERE, BETWEEN THE DOUBLE BRACKETS
@@ -195,3 +196,4 @@ djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)
 
 
 And example mod is located [here](example-mod), if you wish to see it running. It includes a few text animations and fonts.
+
