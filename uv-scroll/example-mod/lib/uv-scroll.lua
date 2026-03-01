@@ -1,6 +1,6 @@
 -----------------------
 -- UV Scroll Library --
--- v1.1              --
+-- v1.2              --
 -----------------------
 
 ---------------------------------------------------------------------
@@ -35,11 +35,16 @@
 
 ---@class UvScroll
 local UvScroll = {
-    hooked = {}  ---@type HookedUvScroll[]
+    hooked = {},  ---@type HookedUvScroll[]
+    _flat  = {},  ---@type table[]  pre-flattened prep list for single-pass iteration
 }
 
-local SHORT_MAX = 32767
-local SHORT_MIN = -32768
+local SHORT_MAX     = 32767
+local SHORT_MIN     = -32768
+local SHORT_MAX_100 = SHORT_MAX * 100   -- 3_276_700  (sentinel min value)
+local SHORT_MIN_100 = SHORT_MIN * 100   -- -3_276_800 (sentinel max value)
+local UV_DIVISOR    = SHORT_MAX // 4    -- 8191
+local UV_DIVISOR_X2 = UV_DIVISOR * 2   -- 16382
 
 ---------------------------------------------------------------------
 -- Parse a display list name into a flat list of triangles
@@ -76,18 +81,21 @@ local function parse_gfx_name_to_triangles(name)
             end
 
         elseif op == G_TRI2 then
-            -- Extract v0, v1, v2 indices from the packed word
-            for _, word in ipairs({gfx.w0, gfx.w1}) do
-                local v0   = ((word >> 16) & 0xFF) // 2
-                local v1   = ((word >>  8) & 0xFF) // 2
-                local v2   = ((word >>  0) & 0xFF) // 2
-
-                if vtx ~= nil and v0 < vtx_count and v1 < vtx_count and v2 < vtx_count then
-                    local vtx0 = vtx_get_vertex(vtx, v0)
-                    local vtx1 = vtx_get_vertex(vtx, v1)
-                    local vtx2 = vtx_get_vertex(vtx, v2)
-                    triangles[#triangles + 1] = { vtx0, vtx1, vtx2 }
-                end
+            -- Unrolled: process both packed triangles
+            local word, v0, v1, v2
+            word = gfx.w0
+            v0 = ((word >> 16) & 0xFF) // 2
+            v1 = ((word >>  8) & 0xFF) // 2
+            v2 = ((word >>  0) & 0xFF) // 2
+            if vtx ~= nil and v0 < vtx_count and v1 < vtx_count and v2 < vtx_count then
+                triangles[#triangles + 1] = { vtx_get_vertex(vtx, v0), vtx_get_vertex(vtx, v1), vtx_get_vertex(vtx, v2) }
+            end
+            word = gfx.w1
+            v0 = ((word >> 16) & 0xFF) // 2
+            v1 = ((word >>  8) & 0xFF) // 2
+            v2 = ((word >>  0) & 0xFF) // 2
+            if vtx ~= nil and v0 < vtx_count and v1 < vtx_count and v2 < vtx_count then
+                triangles[#triangles + 1] = { vtx_get_vertex(vtx, v0), vtx_get_vertex(vtx, v1), vtx_get_vertex(vtx, v2) }
             end
         end
 
@@ -120,14 +128,24 @@ local function group_vertices_into_chunks(triangles)
         end
     end
 
-    -- Depth-first search to collect all connected vertices in one chunk
-    local function dfs(v, chunk)
-        visited_vertices[v] = true
-        chunk[#chunk + 1] = v
-        if adjacency[v] then
-            for neighbor in pairs(adjacency[v]) do
-                if not visited_vertices[neighbor] then
-                    dfs(neighbor, chunk)
+    -- Iterative DFS: avoids recursion overhead and call-stack limits on large meshes
+    local dfs_stack = {}
+    local function dfs(start_v, chunk)
+        local top = 1
+        dfs_stack[1] = start_v
+        while top > 0 do
+            local v = dfs_stack[top]
+            top = top - 1
+            if not visited_vertices[v] then
+                visited_vertices[v] = true
+                chunk[#chunk + 1] = v
+                if adjacency[v] then
+                    for neighbor in pairs(adjacency[v]) do
+                        if not visited_vertices[neighbor] then
+                            top = top + 1
+                            dfs_stack[top] = neighbor
+                        end
+                    end
                 end
             end
         end
@@ -194,48 +212,69 @@ function UvScroll.hook_scrolling_function(gfx_name, callback)
     local processed = prepare_chunks_for_scroll(chunks)
 
     -- Store the hooked data
-    UvScroll.hooked[gfx_name] = {
+    local hook_entry = {
         gfx_name = gfx_name,
         processed = processed,
-        callback = callback,
+        callback  = callback,
     }
+    UvScroll.hooked[gfx_name] = hook_entry
+
+    -- Append each prep into the flat list so the update loop needs only one pass
+    local flat = UvScroll._flat
+    for _, prep in ipairs(processed) do
+        flat[#flat + 1] = {
+            hook_ref      = hook_entry,
+            vertices      = prep.vertices,
+            uvs           = prep.uvs,
+            original_uvs  = prep.original_uvs,
+            n             = #prep.vertices,       -- cached; vertex list never changes after parse
+        }
+    end
 
     return true
 end
 
 hook_event(HOOK_UPDATE, function()
-    for _, hooked in pairs(UvScroll.hooked) do
-        for _, prep in ipairs(hooked.processed) do
-            local vertices = prep.vertices
-            local uvs = prep.uvs
-            local original_uvs = prep.original_uvs
+    local flat = UvScroll._flat
+    for i = 1, #flat do
+        local entry        = flat[i]
+        local callback     = entry.hook_ref.callback
+        local vertices     = entry.vertices
+        local uvs          = entry.uvs
+        local original_uvs = entry.original_uvs
+        local n            = entry.n
 
-            local min_uv = { SHORT_MAX * 100, SHORT_MAX * 100 }
-            local max_uv = { SHORT_MIN * 100, SHORT_MIN * 100 }
+        -- Scalar sentinel locals: no table indexing in the hot path
+        local min_u = SHORT_MAX_100
+        local min_v = SHORT_MAX_100
+        local max_u = SHORT_MIN_100
+        local max_v = SHORT_MIN_100
 
-            for i = 1, #vertices do
-                local vtx = vertices[i]
-                hooked.callback(vtx, original_uvs[i], uvs[i])
+        -- Pass 1: invoke callback and track UV bounds
+        for j = 1, n do
+            local uv = uvs[j]
+            callback(vertices[j], original_uvs[j], uv)
+            local u, v = uv[1], uv[2]
+            if u < min_u then min_u = u end
+            if u > max_u then max_u = u end
+            if v < min_v then min_v = v end
+            if v > max_v then max_v = v end
+        end
 
-                for j = 1, 2 do
-                    min_uv[j] = math.min(min_uv[j], uvs[i][j])
-                    max_uv[j] = math.max(max_uv[j], uvs[i][j])
-                end
-            end
+        -- Centred adjustment
+        local adj1 = UV_DIVISOR * ((min_u + max_u) // UV_DIVISOR_X2)
+        local adj2 = UV_DIVISOR * ((min_v + max_v) // UV_DIVISOR_X2)
 
-            local divisor = SHORT_MAX // 4
-            local adjust_uv = {
-                divisor * ((min_uv[1] + max_uv[1]) // (2 * divisor)),
-                divisor * ((min_uv[2] + max_uv[2]) // (2 * divisor))
-            }
-
-            for i = 1, #vertices do
-                local vtx = vertices[i]
-                uvs[i][1] = uvs[i][1] - adjust_uv[1]
-                uvs[i][2] = uvs[i][2] - adjust_uv[2]
-                vtx.tu = uvs[i][1]
-                vtx.tv = uvs[i][2]
-            end
+        -- Pass 2: apply adjustment and write back to vertex data
+        for j = 1, n do
+            local uv  = uvs[j]
+            local vtx = vertices[j]
+            local u   = uv[1] - adj1
+            local v   = uv[2] - adj2
+            uv[1]  = u
+            uv[2]  = v
+            vtx.tu = u
+            vtx.tv = v
         end
     end
 end)
