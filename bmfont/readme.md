@@ -55,10 +55,11 @@ hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 4. Uncheck `Auto Pack` and check `Fixed Size`
 5. Set `Width` to `1024` and `Height` to `512` (you can use other powers of 2 if you wish)
 6. Decrease `Font Size` until all of the glyphs pack into the image
-7. Click `Export` at the top, export as a `.txt (BMFont TEXT)`
-8. Copy the `png` file from the exported zip to `textures/bmfont-YOURFONTNAME.png`
-9. Open the `txt` file from the exported zip and copy everything inside of it
-10. Create a new file at `your_mod_folder/fonts/bmfont-YOURFONTNAME.lua` that contains the following:
+7. Set the `Color` to `White`.
+8. Click `Export` at the top, export as a `.txt (BMFont TEXT)`
+9. Copy the `png` file from the exported zip to `textures/bmfont-YOURFONTNAME.png`
+10. Open the `txt` file from the exported zip and copy everything inside of it
+11. Create a new file at `your_mod_folder/fonts/bmfont-YOURFONTNAME.lua` that contains the following:
 ```lua
 return [[
 -- PASTE THE CONTENTS OF THE TXT FILE HERE, BETWEEN THE DOUBLE BRACKETS
@@ -68,6 +69,11 @@ return [[
 Now you should be able to load your font in your script
 ```lua
 local FONT_YOURFONTNAME = BmFont.load_fnt('bmfont-YOURFONTNAME')
+```
+
+If you want to adjust the scale for the djui functions, you can add a base scale paramter when you load the font
+```lua
+local FONT_YOURFONTNAME = BmFont.load_fnt('bmfont-YOURFONTNAME', 0.5)
 ```
 
 **Note** - the name of your texture and the name of the lua file **must match**.
@@ -84,9 +90,9 @@ So if you use the font name `comic-sans`:
 
 ## Core Functions
 
-#### `BmFont.load_fnt(font_name)`
+#### `BmFont.load_fnt(font_name, base_scale?)`
 
-Loads a BMFont `.fnt` definition (converted to a Lua file returning the raw text) plus its texture:
+Loads a BMFont `.fnt` definition (converted to a Lua file returning the raw text) plus its texture, with an optional `base_scale` that sets the font’s base scale to be multiplied on for djui functions:
 
 ```lua
 -- Returns a CustomFont object
@@ -95,9 +101,9 @@ local font = BmFont.load_fnt('bmfont-tt-masters')
 
 <br />
 
-#### `BmFont.load_sheet(font_name, tileW, tileH)`
+#### `BmFont.load_sheet(font_name, tileW, tileH, base_scale?)`
 
-Loads a simple monospaced sprite sheet where each UTF‑8 codepoint in a given string is sequentially mapped onto tiles:
+Loads a simple monospaced sprite sheet where each UTF‑8 codepoint in a given string is sequentially mapped onto tiles, with an optional `base_scale` that sets the font’s base scale to be multiplied on for djui functions:
 
 ```lua
 local FONT_ZD = BmFont.load_sheet('bmfont-zd', 8, 8)
@@ -169,7 +175,7 @@ BmFont.print_center_aligned(FONT_ZD, "WAVE", 200, 200, 2, wave_anim)
 
 ### BmFont is a Drop-in Replacement
 
-You can use all of the previous text rendering functions in the same way as before, but using the fonts loaded using `BmFont`.
+You can use all of the previous text rendering functions in the same way as before, but using the fonts loaded using `BmFont`. Fonts with an adjusted `base_scale` will have the scale inserted multiplied by the user's scale.
 
 The following functions get overridden allowing you to use custom fonts, or the built in ones.
 

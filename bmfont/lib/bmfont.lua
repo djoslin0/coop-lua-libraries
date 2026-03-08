@@ -167,7 +167,9 @@ end
 --- @param font_filename string
 --- @param tile_width integer
 --- @param tile_height integer
-function BmFont.load_sheet(font_filename, tile_width, tile_height)
+--- @param base_scale number?
+function BmFont.load_sheet(font_filename, tile_width, tile_height, base_scale)
+    if base_scale == nil then base_scale = 1 end
     ---@class CustomFont
     local font = {
         info       = {},
@@ -179,6 +181,7 @@ function BmFont.load_sheet(font_filename, tile_width, tile_height)
         charCount  = 0,
         texture    = get_texture_info(font_filename),
         right_to_left = false,
+        base_scale = base_scale,
     }
 
     local fnt_string = require('/fonts/' .. font_filename)
@@ -208,7 +211,9 @@ function BmFont.load_sheet(font_filename, tile_width, tile_height)
 end
 
 --- @param font_filename string
-function BmFont.load_fnt(font_filename)
+--- @param base_scale number?
+function BmFont.load_fnt(font_filename, base_scale)
+    if base_scale == nil then base_scale = 1 end
     ---@class CustomFont
     local font = {
         info       = {},
@@ -219,6 +224,7 @@ function BmFont.load_fnt(font_filename)
         kerningMap = {},     -- quick lookup: kerningMap[first][second] = amount
         texture    = get_texture_info(font_filename),
         right_to_left = false,
+        base_scale = base_scale
     }
 
     local fnt_string = require('/fonts/' .. font_filename)
