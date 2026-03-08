@@ -1,6 +1,6 @@
 # coop-lua-libraries
 
-A collection of Lua libraries for [sm64coopdx](https://github.com/djoslin0/sm64coopdx) mod development.
+A collection of Lua libraries for [sm64coopdx](https://github.com/coop-deluxe/sm64coopdx) mod development.
 
 <br />
 
