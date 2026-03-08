@@ -4,10 +4,6 @@ A collection of Lua libraries for [sm64coopdx](https://github.com/djoslin0/sm64c
 
 <br />
 
----
-
-<br />
-
 ## Libraries
 
 #### [BmFont](bmfont)
