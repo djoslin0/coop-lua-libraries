@@ -87,7 +87,7 @@ Loads a sprite sheet texture and builds a display list for each tile. Returns a 
 local tex = SpriteSheet3d.load("s3d_explosion", 4, 4)
 ```
 
-Tiles are indexed left-to-right, top-to-bottom. Display lists for a given texture are cached and shared — calling `load` twice with the same name returns the same data without re-allocating.
+Tiles are indexed left-to-right, top-to-bottom. Display lists for a given texture are cached and shared. Calling `load` twice with the same name returns the same data without re-allocating.
 
 <br />
 
@@ -149,16 +149,16 @@ obj.oAnimState = pos < count and pos or cycle - pos
 
 ## Animation
 
-The only thing you need to drive an animation is `obj.oAnimState`. Set it to the zero-based tile index each frame in your behavior loop — the library handles the rest.
+The only thing you need to drive an animation is `obj.oAnimState`.
 
-**Linear** — play through frames at a fixed rate:
+**Linear**: play through frames at a fixed rate:
 
 ```lua
 local frames_per_tile = 2
 obj.oAnimState = obj.oTimer // frames_per_tile
 ```
 
-**Ping-pong** — play forward then backward:
+**Ping-pong**: play forward then backward:
 
 ```lua
 local count = SpriteSheet3d.get_tile_count(obj)
@@ -167,7 +167,7 @@ local pos = obj.oTimer % cycle
 obj.oAnimState = pos < count and pos or cycle - pos
 ```
 
-**Random** — jump to a new tile every N frames:
+**Random**: jump to a new tile every N frames:
 
 ```lua
 local change_every = 10
@@ -176,7 +176,7 @@ if obj.oTimer % change_every == 0 then
 end
 ```
 
-**Billboarding** — to make the quad always face the camera, call this after spawning:
+**Billboarding**: to make the quad always face the camera, call this after spawning:
 
 ```lua
 obj_set_billboard(obj)
