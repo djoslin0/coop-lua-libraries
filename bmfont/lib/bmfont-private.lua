@@ -25,7 +25,7 @@ function BmFontPrivate._process_text(message, scale, onGlyph, ...)
         message = table.concat(chars)
     end
 
-    local length = utf8.len(message)
+    local length = 0
     local index = 0
 
     for _, code in utf8.codes(message) do
@@ -46,8 +46,9 @@ function BmFontPrivate._process_text(message, scale, onGlyph, ...)
             -- kerning from previous code
             if prevCode then
                 local row = fnt.kerningMap[prevCode]
-                if row and row[code] then
-                    x = x + row[code] * scale
+                if row then
+                    local kern = row[code]
+                    if kern then x = x + kern * scale end
                 end
             end
 
@@ -62,6 +63,31 @@ function BmFontPrivate._process_text(message, scale, onGlyph, ...)
     end
 
     return x
+end
+
+-------------------------------------------------------------------
+
+local function _noop() end
+
+local function _render_glyph(ch, ox, s, i, l, sx, sy)
+    local ar = ch.height / ch.width
+    djui_hud_render_texture_tile(
+        override_font.texture,
+        sx + ox + ch.xoffset * s,
+        sy +      ch.yoffset * s,
+        s * ar, s,
+        ch.x, ch.y, ch.width, ch.height
+    )
+end
+
+local function _render_glyph_interpolated(ch, ox, s, i, l, px, py, ps, sx, sy)
+    local ar = ch.height / ch.width
+    djui_hud_render_texture_tile_interpolated(
+        override_font.texture,
+        px + ox + ch.xoffset * s, py + ch.yoffset * s, ps * ar, ps,
+        sx + ox + ch.xoffset * s, sy + ch.yoffset * s,   s * ar,  s,
+        ch.x, ch.y, ch.width, ch.height
+    )
 end
 
 -------------------------------------------------------------------
@@ -106,18 +132,7 @@ function djui_hud_print_text(message, x, y, scale)
 
     if type(message) ~= "string" then return end
 
-    BmFontPrivate._process_text(message, override_font.base_scale * scale,
-        function(ch, ox, s, i, l)
-            local ar = ch.height / ch.width
-            djui_hud_render_texture_tile(
-                override_font.texture,
-                x + ox + ch.xoffset * s,
-                y      + ch.yoffset * s,
-                s * ar, s,
-                ch.x, ch.y, ch.width, ch.height
-            )
-        end
-    )
+    BmFontPrivate._process_text(message, override_font.base_scale * scale, _render_glyph, x, y)
 end
 
 -------------------------------------------------------------------
@@ -139,19 +154,9 @@ function djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y
 
     if type(message) ~= "string" then return end
 
-    prevScale = prevScale * override_font.base_scale
-
-    BmFontPrivate._process_text(message, override_font.base_scale * scale,
-        function(ch, ox, s, i, l)
-            local ar = ch.height / ch.width
-            djui_hud_render_texture_tile_interpolated(
-                override_font.texture,
-                prevX + ox + ch.xoffset * s, prevY + ch.yoffset * s, prevScale * ar, prevScale,
-                x     + ox + ch.xoffset * s,     y + ch.yoffset * s,         s * ar,         s,
-                ch.x, ch.y, ch.width, ch.height
-            )
-        end
-    )
+    local bs = override_font.base_scale
+    BmFontPrivate._process_text(message, bs * scale, _render_glyph_interpolated,
+        prevX, prevY, prevScale * bs, x, y)
 end
 
 -------------------------------------------------------------------
@@ -166,7 +171,7 @@ function djui_hud_measure_text(message)
     end
     if type(message) ~= "string" then return 0 end
 
-    return BmFontPrivate._process_text(message, override_font.base_scale, function() end)
+    return BmFontPrivate._process_text(message, override_font.base_scale, _noop)
 end
 
 -------------------------------------------------------------------

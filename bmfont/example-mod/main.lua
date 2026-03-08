@@ -11,8 +11,8 @@ local BmFont = require('/lib/bmfont')
 local FONT_TT_MASTERS  = BmFont.load_fnt('bmfont-tt-masters')
 local FONT_YELLOWTAIL  = BmFont.load_fnt('bmfont-yellowtail')
 
--- load the following font as a monospaced spritesheet
-local FONT_ZD          = BmFont.load_sheet('bmfont-zd', 8, 8)
+-- load the following font as a monospaced spritesheet, with a base_scale of 4
+local FONT_ZD          = BmFont.load_sheet('bmfont-zd', 8, 8, 4)
 
 -----------------------------
 -- text animation examples --
@@ -86,26 +86,25 @@ local function on_hud_render()
     m = djui_hud_measure_text(text)
     djui_hud_print_text(text, (w - m * scale) * 0.5, 150, scale)
 
-    -- renter custom font tt-masters
+    -- render custom font tt-masters
     djui_hud_set_color(0, 0, 0, 255)
     djui_hud_set_font(FONT_TT_MASTERS)
     m = djui_hud_measure_text(text)
     djui_hud_print_text(text, (w - m * scale) * 0.5, 190, scale)
 
-    -- renter custom font yellowtail
+    -- render custom font yellowtail
     djui_hud_set_color(0, 0, 255, 255)
     djui_hud_set_font(FONT_YELLOWTAIL)
     m = djui_hud_measure_text(text)
     djui_hud_print_text(text, (w - m * scale) * 0.5, 220, scale)
 
-    -- renter custom font zd
+    -- render custom font zd
     djui_hud_set_color(255, 255, 255, 255)
-    scale = scale * 4
     djui_hud_set_font(FONT_ZD)
     m = djui_hud_measure_text(text)
     djui_hud_print_text(text, (w - m * scale) * 0.5, 270, scale)
 
-    -- renter custom font zd with an animation
+    -- render custom font zd with an animation
     BmFont.print_center_aligned(FONT_ZD, text, w * 0.5, 330, scale, anim_gradient)
     BmFont.print_center_aligned(FONT_ZD, text, w * 0.5, 370, scale, anim_leaping)
     BmFont.print_center_aligned(FONT_ZD, text, w * 0.5, 410, scale, anim_shining)

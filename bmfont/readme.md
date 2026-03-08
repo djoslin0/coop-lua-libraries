@@ -71,7 +71,7 @@ Now you should be able to load your font in your script
 local FONT_YOURFONTNAME = BmFont.load_fnt('bmfont-YOURFONTNAME')
 ```
 
-If you want to adjust the scale for the djui functions, you can add a base scale paramter when you load the font
+If you want to adjust the scale for the djui functions, you can add a base scale parameter when you load the font
 ```lua
 local FONT_YOURFONTNAME = BmFont.load_fnt('bmfont-YOURFONTNAME', 0.5)
 ```
@@ -175,7 +175,7 @@ BmFont.print_center_aligned(FONT_ZD, "WAVE", 200, 200, 2, wave_anim)
 
 ### BmFont is a Drop-in Replacement
 
-You can use all of the previous text rendering functions in the same way as before, but using the fonts loaded using `BmFont`. Fonts with an adjusted `base_scale` will have the scale inserted multiplied by the user's scale.
+You can use all of the previous text rendering functions in the same way as before, but using the fonts loaded using `BmFont`. Fonts with an adjusted `base_scale` will have their scale multiplied by the user's scale.
 
 The following functions get overridden allowing you to use custom fonts, or the built in ones.
 
@@ -194,4 +194,4 @@ djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)
 
 ## Example Mod
 
-And example mod is located [here](example-mod), if you wish to see it running. It includes a few text animations and fonts.
+An example mod is located [here](example-mod), if you wish to see it running. It includes a few text animations and fonts.

@@ -1,17 +1,17 @@
 --------------------
 -- BmFont Library --
--- v1.1           --
+-- v1.2           --
 --------------------
 
 ---------------------------------------------------------------------
 --
 --    A lightweight bitmap font rendering library for coop
---    with with support for BMFont .fnt files, sprite sheets,
+--    with support for BMFont .fnt files, sprite sheets,
 --    kerning, and animations.
 --
 --    Use the following functions at load time:
---       BmFont.load_fnt(path)                  to load .fnt definitions
---       BmFont.load_sheet(sheet_string, w, h)  to load monospaced sprite sheets
+--       BmFont.load_fnt(path, base_scale?)                  to load .fnt definitions
+--       BmFont.load_sheet(sheet_string, w, h, base_scale?)  to load monospaced sprite sheets
 --
 --    Use the following functions in `HOOK_ON_HUD_RENDER`
 --       BmFont.print(font, message, x, y, scale, anim_fn)
@@ -31,6 +31,64 @@
 local BmFont = {}
 
 local BmFontPrivate = require('bmfont-private')
+local _process_text = BmFontPrivate._process_text
+
+-------------------------------------------------------------------
+-- module-level state for BmFont.print
+
+local _print_font          = nil
+local _print_anim_fn       = nil
+local _print_prev_color    = nil
+local _print_prev_rotation = nil
+local _print_length        = 0
+
+---@class TextAnimOutput
+local _anim_offset   = { x = 0, y = 0 }
+local _anim_color    = { r = 255, g = 255, b = 255, a = 255 }
+local _anim_scale    = { x = 1, y = 1 }
+local _anim_rotation = { rotation = 0, pivot_x = 0, pivot_y = 0 }
+local _text_anim_output = {
+    offset   = _anim_offset,
+    color    = _anim_color,
+    scale    = _anim_scale,
+    rotation = _anim_rotation,
+}
+
+local function _print_glyph_no_anim(ch, ox, s, i, l, sx, sy)
+    local ar = ch.height / ch.width
+    djui_hud_render_texture_tile(
+        _print_font.texture,
+        sx + ox + ch.xoffset * s,
+        sy +      ch.yoffset * s,
+        s * ar, s,
+        ch.x, ch.y, ch.width, ch.height
+    )
+end
+
+local function _print_glyph_anim(ch, ox, s, index, _len, sx, sy)
+    local pc = _print_prev_color
+    local pr = _print_prev_rotation
+    _anim_offset.x, _anim_offset.y = 0, 0
+    _anim_scale.x,  _anim_scale.y  = 1, 1
+    _anim_color.r, _anim_color.g, _anim_color.b, _anim_color.a = pc.r, pc.g, pc.b, pc.a
+    _anim_rotation.rotation = pr.rotation
+    _anim_rotation.pivot_x  = pr.pivotX
+    _anim_rotation.pivot_y  = pr.pivotY
+
+    _print_anim_fn(index, _print_length, _text_anim_output)
+
+    djui_hud_set_color(_anim_color.r, _anim_color.g, _anim_color.b, _anim_color.a)
+    djui_hud_set_rotation(_anim_rotation.rotation, _anim_rotation.pivot_x, _anim_rotation.pivot_y)
+
+    local ar = ch.height / ch.width
+    djui_hud_render_texture_tile(
+        _print_font.texture,
+        sx + ox + ch.xoffset * s + _anim_offset.x,
+        sy +      ch.yoffset * s + _anim_offset.y,
+        s * ar * _anim_scale.x, s * _anim_scale.y,
+        ch.x, ch.y, ch.width, ch.height
+    )
+end
 
 -------------------------------------------------------------------
 
@@ -46,52 +104,32 @@ function BmFont.print(font, message, x, y, scale, anim_function)
     if font == nil then return end
     if type(message) ~= "string" then return end
 
-    local prev_color = djui_hud_get_color()
+    local prev_color    = djui_hud_get_color()
     local prev_rotation = djui_hud_get_rotation()
-    local prev_font = override_font
+    local prev_font     = djui_hud_get_font()
 
-    override_font = font
+    djui_hud_set_font(font)
+    _print_font = font
 
-    ---@class TextAnimOutput
-    local text_anim_output = {
-        offset   = { x = 0, y = 0 },
-        color    = { r = prev_color.r, g = prev_color.g, b = prev_color.b, a = prev_color.a },
-        scale    = { x = 1, y = 1 },
-        rotation = { rotation = prev_rotation.rotation, pivot_x = prev_rotation.pivotX, pivot_y = prev_rotation.pivotY }
-    }
-    local aoffset = text_anim_output.offset
-    local ascale = text_anim_output.scale
-    local acolor = text_anim_output.color
-    local arotation = text_anim_output.rotation
-
-    BmFontPrivate._process_text(message, scale,
-        function(ch, ox, s, index, length)
-            if anim_function then
-                -- reset anim
-                aoffset.x, aoffset.y = 0, 0
-                ascale.x, ascale.y = 1, 1
-                acolor.r, acolor.g, acolor.b, acolor.a = prev_color.r, prev_color.g, prev_color.b, prev_color.a
-                arotation.rotation, arotation.pivot_x, arotation.pivot_y = prev_rotation.rotation, prev_rotation.pivotX, prev_rotation.pivotY
-
-                anim_function(index, length, text_anim_output)
-
-                djui_hud_set_color(acolor.r, acolor.g, acolor.b, acolor.a)
-                djui_hud_set_rotation(arotation.rotation, arotation.pivot_x, arotation.pivot_y)
-            end
-            local ar = ch.height / ch.width
-            djui_hud_render_texture_tile(
-                font.texture,
-                x + ox + ch.xoffset * s + aoffset.x,
-                y      + ch.yoffset * s + aoffset.y,
-                s * ar * ascale.x, s * ascale.y,
-                ch.x, ch.y, ch.width, ch.height
-            )
-        end
-    )
+    local scaled = font.base_scale * scale
+    if anim_function then
+        _print_anim_fn       = anim_function
+        _print_prev_color    = prev_color
+        _print_prev_rotation = prev_rotation
+        _print_length        = utf8.len(message)
+        _process_text(message, scaled, _print_glyph_anim, x, y)
+        _print_anim_fn       = nil
+        _print_prev_color    = nil
+        _print_prev_rotation = nil
+        _print_length        = 0
+    else
+        _process_text(message, scaled, _print_glyph_no_anim, x, y)
+    end
 
     djui_hud_set_color(prev_color.r, prev_color.g, prev_color.b, prev_color.a)
     djui_hud_set_rotation(prev_rotation.rotation, prev_rotation.pivotX, prev_rotation.pivotY)
-    override_font = prev_font
+    djui_hud_set_font(prev_font)
+    _print_font = nil
 end
 
 --- @param font CustomFont
@@ -113,10 +151,10 @@ end
 --- @param anim_function TextAnimCallback?
 function BmFont.print_right_aligned(font, message, x, y, scale, anim_function)
     if not font then return end
-    local prev_override_font = override_font
-    override_font = font
+    local prev_font = djui_hud_get_font()
+    djui_hud_set_font(font)
     x = x - djui_hud_measure_text(message) * scale
-    override_font = prev_override_font
+    djui_hud_set_font(prev_font)
 
     BmFont.print(font, message, x, y, scale, anim_function)
 end
@@ -129,10 +167,10 @@ end
 --- @param anim_function TextAnimCallback?
 function BmFont.print_center_aligned(font, message, x, y, scale, anim_function)
     if not font then return end
-    local prev_override_font = override_font
-    override_font = font
+    local prev_font = djui_hud_get_font()
+    djui_hud_set_font(font)
     x = x - djui_hud_measure_text(message) * scale * 0.5
-    override_font = prev_override_font
+    djui_hud_set_font(prev_font)
 
     BmFont.print(font, message, x, y, scale, anim_function)
 end
@@ -167,7 +205,10 @@ end
 --- @param font_filename string
 --- @param tile_width integer
 --- @param tile_height integer
-function BmFont.load_sheet(font_filename, tile_width, tile_height)
+--- @param base_scale number?
+function BmFont.load_sheet(font_filename, tile_width, tile_height, base_scale)
+    if base_scale == nil then base_scale = 1 end
+    if base_scale <= 0 then base_scale = 1 end
     ---@class CustomFont
     local font = {
         info       = {},
@@ -179,6 +220,7 @@ function BmFont.load_sheet(font_filename, tile_width, tile_height)
         charCount  = 0,
         texture    = get_texture_info(font_filename),
         right_to_left = false,
+        base_scale = base_scale,
     }
 
     local fnt_string = require('/fonts/' .. font_filename)
@@ -208,7 +250,10 @@ function BmFont.load_sheet(font_filename, tile_width, tile_height)
 end
 
 --- @param font_filename string
-function BmFont.load_fnt(font_filename)
+--- @param base_scale number?
+function BmFont.load_fnt(font_filename, base_scale)
+    if base_scale == nil then base_scale = 1 end
+    if base_scale <= 0 then base_scale = 1 end
     ---@class CustomFont
     local font = {
         info       = {},
@@ -219,6 +264,7 @@ function BmFont.load_fnt(font_filename)
         kerningMap = {},     -- quick lookup: kerningMap[first][second] = amount
         texture    = get_texture_info(font_filename),
         right_to_left = false,
+        base_scale = base_scale
     }
 
     local fnt_string = require('/fonts/' .. font_filename)
